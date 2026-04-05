@@ -46,3 +46,64 @@ The IoT-Based Smart Toll Collection System automates toll operations using RFID,
 ---
 
 ## 🏗️ System Architecture  
+
+
+---
+
+## ⚙️ Operation  
+
+1. Vehicle arrives at toll  
+2. Sensor detects vehicle  
+3. RFID tag is scanned  
+4. Data sent to cloud  
+5. System verifies balance  
+6. Gate opens if valid, else denied  
+7. Buzzer gives feedback  
+8. Transaction stored in database  
+
+---
+
+## 📊 Performance Metrics  
+
+- Accuracy  
+- Latency  
+- Reliability  
+- Energy Efficiency  
+
+---
+
+## 🧪 Experimental Setup  
+
+Tested in a simulated toll booth environment using multiple RFID cards and stable Wi-Fi connectivity.
+
+---
+
+## ⚠️ Challenges  
+
+- Internet dependency  
+- RFID security  
+- Response delay  
+- Hardware reliability  
+- System scalability  
+
+---
+
+## 🚀 Future Improvements  
+
+- Mobile app integration  
+- Digital payment support  
+- Enhanced security  
+- Multi-lane support  
+- AI-based analytics  
+
+---
+
+## 📷 Prototype  
+
+(Add images/screenshots here)
+
+---
+
+## 📄 Documentation  
+
+For a more detailed explanation, please refer to the [IoT_Project_Report.pdf](IoT_Project_Report.pdf).  
