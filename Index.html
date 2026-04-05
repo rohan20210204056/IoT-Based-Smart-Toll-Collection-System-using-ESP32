@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Toll System</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+
+  header {
+    background: #1a1a2e;
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  header button {
+    background: #e94560;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+
+  header button:hover { background: #c73652; }
+
+  nav {
+    background: #16213e;
+    display: flex;
+    gap: 0;
+  }
+
+  nav button {
+    background: none;
+    border: none;
+    color: #aaa;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 3px solid transparent;
+  }
+
+  nav button:hover { color: white; }
+  nav button.active { color: white; border-bottom-color: #e94560; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+    margin: 0 0 16px 0;
+    color: #1a1a2e;
+    border-left: 4px solid #e94560;
+    padding-left: 10px;
+  }
+
+  /* Stats */
+  .stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 14px 20px;
+    border-radius: 4px;
+    min-width: 140px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1a1a2e;
+  }
+
+  .stat-box .lbl {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    align-items: center;
+  }
+
+  .filter-bar input,
+  .filter-bar select {
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .filter-bar button {
+    padding: 7px 14px;
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  /* Table */
+  .table-wrap {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead {
+    background: #1a1a2e;
+    color: white;
+  }
+
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .badge-car { background: #e0f0ff; color: #1a6fa8; border: 1px solid #a8d0f0; }
+  .badge-bus { background: #fff0e0; color: #a86000; border: 1px solid #f0c880; }
+
+  .empty-row td {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+    color: #666;
+    background: #fafafa;
+  }
+
+  .pagination button {
+    padding: 4px 10px;
+    margin-left: 4px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .pagination button.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+
+  /* Card Lookup */
+  .lookup-box {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .lookup-box p {
+    margin: 0 0 12px;
+    color: #555;
+    font-size: 13px;
+  }
+
+  .inline-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .inline-form input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .inline-form button,
+  .btn-red {
+    padding: 8px 16px;
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn-dark {
+    padding: 8px 16px;
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .listen-note {
+    display: none;
+    font-size: 13px;
+    color: #e94560;
+    margin-top: 8px;
+  }
+
+  .listen-note.visible { display: block; }
+
+  /* Card Info Result */
+  .card-result {
+    display: none;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .card-result.visible { display: block; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .info-item label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .info-item span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a2e;
+  }
+
+  .green { color: #1a8a4a; }
+  .red   { color: #c0392b; }
+
+  /* Admin */
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 780px) {
+    .admin-grid { grid-template-columns: 1fr; }
+  }
+
+  .form-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 18px;
+  }
+
+  .form-card h3 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    color: #1a1a2e;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+
+  .form-row { margin-bottom: 12px; }
+
+  .form-row label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .form-row input,
+  .form-row select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+
+  .form-row input[readonly] {
+    background: #f5f5f5;
+    color: #888;
+  }
+
+  .btn-full {
+    width: 100%;
+    padding: 9px;
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .balance-box {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 14px;
+    text-align: center;
+    margin: 14px 0;
+  }
+
+  .balance-box .amount {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1a8a4a;
+  }
+
+  .balance-box .unit { font-size: 13px; color: #888; }
+
+  .recharge-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .recharge-row input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .btn-green {
+    padding: 8px 14px;
+    background: #1a8a4a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  hr { border: none; border-top: 1px solid #eee; margin: 14px 0; }
+
+  /* Messages */
+  .msg {
+    display: none;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .msg.visible  { display: block; }
+  .msg-ok  { background: #e6f9ef; border: 1px solid #a3d9b5; color: #1a6b3c; }
+  .msg-err { background: #fdecea; border: 1px solid #f5a9a4; color: #8b1a1a; }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 6px;
+    padding: 28px;
+    width: 300px;
+    max-width: 90vw;
+  }
+
+  .modal h3 { margin: 0 0 16px; font-size: 17px; }
+
+  .modal input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  .modal-btns { display: flex; gap: 8px; margin-top: 6px; }
+  .modal-btns button { flex: 1; padding: 9px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .modal-btns .btn-confirm { background: #1a1a2e; color: white; }
+  .modal-btns .btn-cancel  { background: #eee; color: #333; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚦 Smart Toll System</h1>
+  <div>
+    <span id="adminLabel" style="color:#aaa;font-size:13px;margin-right:10px;display:none">Logged in as Admin</span>
+    <button id="loginBtn"  onclick="openModal()">Admin Login</button>
+    <button id="logoutBtn" onclick="logout()" style="display:none;background:#555">Logout</button>
+  </div>
+</header>
+
+<nav>
+  <button class="active" id="tab-logs"   onclick="showPage('logs')">All Logs</button>
+  <button               id="tab-lookup" onclick="showPage('lookup')">Card Lookup</button>
+  <button               id="tab-admin"  onclick="showPage('admin')" style="display:none">Admin Panel</button>
+</nav>
+
+<!-- ALL LOGS -->
+<div class="page active" id="page-logs">
+  <div class="container">
+
+    <div class="stats">
+      <div class="stat-box"><div class="num" id="sTotal">—</div><div class="lbl">Total Trips</div></div>
+      <div class="stat-box"><div class="num" id="sCar">—</div><div class="lbl">Car Trips</div></div>
+      <div class="stat-box"><div class="num" id="sBus">—</div><div class="lbl">Bus Trips</div></div>
+      <div class="stat-box"><div class="num" id="sRevenue">—</div><div class="lbl">Total Revenue (৳)</div></div>
+    </div>
+
+    <h2>Transaction Logs</h2>
+
+    <div class="filter-bar">
+      <select id="fType" onchange="filterLogs()">
+        <option value="">All Vehicles</option>
+        <option value="car">Car</option>
+        <option value="bus">Bus</option>
+      </select>
+      <input id="fSearch" placeholder="Search name or card ID…" oninput="filterLogs()">
+      <button onclick="loadLogs()">↻ Refresh</button>
+    </div>
+
+    <div id="logsMsg" class="msg" style="margin-bottom:14px"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Timestamp</th>
+            <th>Card ID</th>
+            <th>Owner Name</th>
+            <th>Vehicle</th>
+            <th>Toll (৳)</th>
+            <th>Balance After (৳)</th>
+          </tr>
+        </thead>
+        <tbody id="logsBody">
+          <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+        </tbody>
+      </table>
+      <div class="pagination" id="logsPager" style="display:none">
+        <span id="pagerInfo"></span>
+        <div id="pagerBtns"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CARD LOOKUP -->
+<div class="page" id="page-lookup">
+  <div class="container">
+
+    <h2>Card Lookup</h2>
+
+    <div class="lookup-box">
+      <p>Tap a card on the RFID reader at the gate, or enter the card ID below.</p>
+
+      <button class="btn-red"  id="listenBtn"     onclick="startListen()">▶ Start Listening for Scan</button>
+      <button class="btn-dark" id="stopListenBtn" onclick="stopListen()" style="display:none">■ Stop</button>
+      <div class="listen-note" id="listenNote">⏳ Waiting for card scan at the reader…</div>
+
+      <br><br>
+
+      <div class="inline-form">
+        <input id="manualId" placeholder="Enter Card ID (e.g. A1B2C3D4)">
+        <button onclick="manualSearch()">Search</button>
+      </div>
+    </div>
+
+    <div id="lookupMsg" class="msg" style="margin-bottom:14px"></div>
+
+    <div class="card-result" id="cardResult">
+      <h2 id="resultTitle">Card Info</h2>
+      <div class="info-grid">
+        <div class="info-item"><label>Card ID</label><span id="rCardId">—</span></div>
+        <div class="info-item"><label>Owner Name</label><span id="rName">—</span></div>
+        <div class="info-item"><label>Vehicle Type</label><span id="rVehicle">—</span></div>
+        <div class="info-item"><label>Balance</label><span id="rBalance">—</span></div>
+        <div class="info-item"><label>Toll Rate</label><span id="rRate">—</span></div>
+      </div>
+    </div>
+
+    <div id="cardLogsSection" style="display:none">
+      <h2 id="cardLogsTitle">Transaction History</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Timestamp</th><th>Toll Paid (৳)</th><th>Balance After (৳)</th></tr>
+          </thead>
+          <tbody id="cardLogsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="page" id="page-admin">
+  <div class="container">
+
+    <h2>Admin Panel</h2>
+
+    <div class="admin-grid">
+
+      <div class="form-card">
+        <h3>Manage a Card</h3>
+
+        <p style="font-size:13px;color:#555;margin:0 0 10px">Scan a card at the reader or type the ID.</p>
+
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <input id="adminCardInput" placeholder="Card ID…"
+            style="flex:1;padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px">
+          <button onclick="adminFetch()" class="btn-dark">Fetch</button>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <button class="btn-red"  id="adminListenBtn"     onclick="startAdminListen()">▶ Listen for Scan</button>
+          <button class="btn-dark" id="adminStopListenBtn" onclick="stopAdminListen()" style="display:none">■ Stop</button>
+          <div class="listen-note" id="adminListenNote">⏳ Waiting for card scan at the reader…</div>
+        </div>
+
+        <div id="adminMsg" class="msg"></div>
+
+        <!-- Not found prompt -->
+        <div id="notFoundPrompt" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:14px;margin-bottom:12px">
+          <p style="margin:0 0 10px;font-size:13px;color:#5a4000">
+            ⚠️ No information about this card was found in the database.<br>
+            Do you want to enter this card in the database?
+          </p>
+          <div style="display:flex;gap:8px">
+            <button class="btn-green" onclick="showRegisterForm()">Yes, Add Card</button>
+            <button class="btn-dark"  onclick="hideNotFound()">No, Cancel</button>
+          </div>
+        </div>
+
+        <!-- Register new card form -->
+        <div id="registerForm" style="display:none;background:#f0fff4;border:1px solid #a3d9b5;border-radius:4px;padding:14px;margin-bottom:12px">
+          <p style="margin:0 0 12px;font-size:13px;font-weight:bold;color:#1a6b3c">Register New Card</p>
+          <div id="registerMsg" class="msg"></div>
+          <div class="form-row">
+            <label>Card ID (read-only)</label>
+            <input id="regCardId" readonly style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box;background:#f5f5f5;color:#888">
+          </div>
+          <div class="form-row">
+            <label>Owner Name</label>
+            <input id="regName" placeholder="Full name" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div class="form-row">
+            <label>Vehicle Type</label>
+            <select id="regVehicle" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box">
+              <option value="car">Car (৳100)</option>
+              <option value="bus">Bus (৳200)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Initial Balance (৳)</label>
+            <input id="regBalance" type="number" min="0" value="0" placeholder="0" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-full" onclick="submitRegister()" style="flex:1">✔ Save to Database</button>
+            <button class="btn-dark" onclick="hideRegisterForm()" style="padding:9px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px">Cancel</button>
+          </div>
+        </div>
+
+        <div id="adminForm" style="display:none">
+          <div class="form-row">
+            <label>Card ID (read-only)</label>
+            <input id="aCardId" readonly>
+          </div>
+          <div class="form-row">
+            <label>Owner Name</label>
+            <input id="aName" placeholder="Full name">
+          </div>
+          <div class="form-row">
+            <label>Vehicle Type</label>
+            <select id="aVehicle">
+              <option value="car">Car (৳100)</option>
+              <option value="bus">Bus (৳200)</option>
+            </select>
+          </div>
+          <button class="btn-full" onclick="saveCard()">Save Changes</button>
+
+          <hr>
+
+          <label style="font-size:12px;color:#666">Current Balance</label>
+          <div class="balance-box">
+            <div class="amount" id="aBalance">0</div>
+            <div class="unit">Taka</div>
+          </div>
+
+          <label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Recharge Balance</label>
+          <div class="recharge-row">
+            <input id="addAmt" type="number" min="1" placeholder="Amount in ৳">
+            <button class="btn-green" onclick="recharge()">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h2 style="margin:0">Registered Cards</h2>
+          <button onclick="loadAdminCards()" class="btn-dark" style="padding:6px 12px;font-size:12px">↻ Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Card ID</th><th>Name</th><th>Vehicle</th><th>Balance (৳)</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adminCardsBody">
+              <tr class="empty-row"><td colspan="5">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="overlay" id="deleteOverlay">
+  <div class="modal">
+    <h3>🗑️ Delete Card</h3>
+    <p style="font-size:13px;color:#555;margin:0 0 6px">You are about to delete this card from the database:</p>
+    <p style="font-size:14px;font-weight:bold;color:#c0392b;margin:0 0 16px" id="deleteCardLabel">—</p>
+    <p style="font-size:13px;color:#555;margin:0 0 16px">
+      ⚠️ This will permanently remove the card and all its information.<br>
+      <b>Transaction logs will not be deleted.</b>
+    </p>
+    <div id="deleteMsg" class="msg msg-err"></div>
+    <div class="modal-btns">
+      <button class="btn-confirm" style="background:#c0392b" onclick="confirmDelete()">Yes, Delete</button>
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <h3>🔐 Admin Login</h3>
+    <div id="loginMsg" class="msg msg-err"></div>
+    <input id="loginUser" placeholder="Username" autocomplete="username">
+    <input id="loginPass" placeholder="Password" type="password"
+           onkeydown="if(event.key==='Enter') doLogin()">
+    <div class="modal-btns">
+      <button class="btn-confirm" onclick="doLogin()">Login</button>
+      <button class="btn-cancel"  onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var allLogs = [], filteredLogs = [], currentPage = 1;
+  var PER_PAGE = 25;
+  var adminToken = '';
+  var listenTimer = null, adminListenTimer = null;
+  var lastScanTime = '';
+  var adminCurrentCard = '';
+
+  window.onload = function() { loadLogs(); };
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'admin') loadAdminCards();
+  }
+
+  // LOGS
+  function loadLogs() {
+    document.getElementById('logsBody').innerHTML = '<tr class="empty-row"><td colspan="7">Loading…</td></tr>';
+    document.getElementById('logsMsg').classList.remove('visible');
+    google.script.run
+      .withSuccessHandler(function(res) {
+        var msg = document.getElementById('logsMsg');
+        if (!res || res.status !== 'success') {
+          msg.textContent = 'Failed to load logs. Please check your Apps Script deployment and try again.';
+          msg.className = 'msg msg-err visible';
+          document.getElementById('logsBody').innerHTML = '<tr class="empty-row"><td colspan="7">No data loaded.</td></tr>';
+          return;
+        }
+        msg.classList.remove('visible');
+        allLogs = res.logs || [];
+        filteredLogs = allLogs.slice();
+        updateStats();
+        currentPage = 1;
+        renderLogs();
+      })
+      .withFailureHandler(function(e) {
+        var msg = document.getElementById('logsMsg');
+        msg.textContent = 'Error loading logs: ' + e;
+        msg.className = 'msg msg-err visible';
+        document.getElementById('logsBody').innerHTML = '<tr class="empty-row"><td colspan="7">Failed to load.</td></tr>';
+      })
+      .getLogsForWeb();
+  }
+
+  function updateStats() {
+    var buses   = allLogs.filter(function(l){ return l.vehicleType.toLowerCase()==='bus'; });
+    var cars    = allLogs.filter(function(l){ return l.vehicleType.toLowerCase()==='car'; });
+    var revenue = allLogs.reduce(function(s,l){ return s+(l.tollAmount||0); }, 0);
+    document.getElementById('sTotal').textContent   = allLogs.length;
+    document.getElementById('sCar').textContent     = cars.length;
+    document.getElementById('sBus').textContent     = buses.length;
+    document.getElementById('sRevenue').textContent = revenue.toLocaleString();
+  }
+
+  function filterLogs() {
+    var type   = document.getElementById('fType').value.toLowerCase();
+    var search = document.getElementById('fSearch').value.toLowerCase();
+    filteredLogs = allLogs.filter(function(l){
+      return (!type || l.vehicleType.toLowerCase()===type) &&
+             (!search || l.name.toLowerCase().includes(search) || l.cardId.toLowerCase().includes(search));
+    });
+    currentPage = 1;
+    renderLogs();
+  }
+
+  function renderLogs() {
+    var body  = document.getElementById('logsBody');
+    var total = filteredLogs.length;
+    var start = (currentPage-1)*PER_PAGE;
+    var page  = filteredLogs.slice(start, start+PER_PAGE);
+
+    if (!total) {
+      body.innerHTML = '<tr class="empty-row"><td colspan="7">No records found.</td></tr>';
+      document.getElementById('logsPager').style.display = 'none';
+      return;
+    }
+
+    body.innerHTML = page.map(function(l,i){
+      var vt = l.vehicleType.toLowerCase();
+      return '<tr>' +
+        '<td>'+(start+i+1)+'</td>'+
+        '<td style="font-size:12px;color:#666">'+l.timestamp+'</td>'+
+        '<td><b>'+l.cardId+'</b></td>'+
+        '<td>'+l.name+'</td>'+
+        '<td><span class="badge badge-'+vt+'">'+l.vehicleType+'</span></td>'+
+        '<td><b>৳'+l.tollAmount+'</b></td>'+
+        '<td class="'+(l.remainingBalance<100?'red':'green')+'">৳'+l.remainingBalance+'</td>'+
+      '</tr>';
+    }).join('');
+
+    var totalPages = Math.ceil(total/PER_PAGE);
+    var pager = document.getElementById('logsPager');
+    pager.style.display = 'flex';
+    document.getElementById('pagerInfo').textContent =
+      'Showing '+(start+1)+'–'+Math.min(start+PER_PAGE,total)+' of '+total;
+    var btns = document.getElementById('pagerBtns');
+    btns.innerHTML = '';
+    for (var p=1; p<=Math.min(totalPages,8); p++) {
+      (function(pg){
+        var b = document.createElement('button');
+        b.textContent = pg;
+        if (pg===currentPage) b.className='active';
+        b.onclick = function(){ currentPage=pg; renderLogs(); };
+        btns.appendChild(b);
+      })(p);
+    }
+  }
+
+  // CARD LOOKUP
+  function startListen() {
+    google.script.run.withSuccessHandler(function(res){
+      lastScanTime = res.timestamp||'';
+      listenTimer = setInterval(pollListen, 2000);
+      document.getElementById('listenBtn').style.display     = 'none';
+      document.getElementById('stopListenBtn').style.display = 'inline-block';
+      document.getElementById('listenNote').classList.add('visible');
+    }).getLastScanForWeb();
+  }
+
+  function stopListen() {
+    clearInterval(listenTimer); listenTimer = null;
+    document.getElementById('listenBtn').style.display     = 'inline-block';
+    document.getElementById('stopListenBtn').style.display = 'none';
+    document.getElementById('listenNote').classList.remove('visible');
+  }
+
+  function pollListen() {
+    google.script.run.withSuccessHandler(function(res){
+      if (res&&res.cardId&&res.timestamp&&res.timestamp!==lastScanTime) {
+        lastScanTime = res.timestamp;
+        stopListen();
+        showCard(res.cardId);
+      }
+    }).getLastScanForWeb();
+  }
+
+  function manualSearch() {
+    var id = document.getElementById('manualId').value.trim().toUpperCase();
+    if (!id) { showAdminMsg('Please enter a Card ID.', 'err'); return; }
+    showCard(id);
+  }
+
+  function showCard(cardId) {
+    google.script.run.withSuccessHandler(function(res){
+      if (!res||res.status!=='success') {
+        document.getElementById('cardResult').classList.remove('visible');
+        document.getElementById('cardLogsSection').style.display = 'none';
+        var m = document.getElementById('lookupMsg');
+        m.textContent = 'Card not found: ' + cardId + '. This card is not registered in the database.';
+        m.className = 'msg msg-err visible';
+        return;
+      }
+      document.getElementById('lookupMsg').classList.remove('visible');
+      var c = res.card;
+      document.getElementById('resultTitle').textContent = 'Card Info — '+c.cardId;
+      document.getElementById('rCardId').textContent  = c.cardId;
+      document.getElementById('rName').textContent    = c.name;
+      document.getElementById('rVehicle').textContent = c.vehicleType;
+      document.getElementById('rBalance').textContent = '৳'+c.balance;
+      document.getElementById('rBalance').className   = c.balance<100 ? 'red' : 'green';
+      document.getElementById('rRate').textContent    = '৳'+(c.vehicleType.toLowerCase()==='bus'?200:100)+' per trip';
+      document.getElementById('cardResult').classList.add('visible');
+      loadCardLogs(c.cardId, c.name);
+    }).getCardInfoForWeb(cardId);
+  }
+
+  function loadCardLogs(cardId, name) {
+    google.script.run.withSuccessHandler(function(res){
+      document.getElementById('cardLogsSection').style.display = 'block';
+      document.getElementById('cardLogsTitle').textContent =
+        name+' — Transaction History ('+(res.total||0)+' trips)';
+      var body = document.getElementById('cardLogsBody');
+      if (!res.logs||!res.logs.length) {
+        body.innerHTML='<tr class="empty-row"><td colspan="4">No transactions yet.</td></tr>'; return;
+      }
+      body.innerHTML = res.logs.map(function(l,i){
+        return '<tr>'+
+          '<td>'+(i+1)+'</td>'+
+          '<td style="font-size:12px;color:#666">'+l.timestamp+'</td>'+
+          '<td><b>৳'+l.tollAmount+'</b></td>'+
+          '<td class="'+(l.remainingBalance<100?'red':'green')+'">৳'+l.remainingBalance+'</td>'+
+        '</tr>';
+      }).join('');
+    }).getCardLogsForWeb(cardId);
+  }
+
+  // LOGIN
+  function openModal()  { document.getElementById('loginOverlay').classList.add('open'); }
+  function closeModal() {
+    document.getElementById('loginOverlay').classList.remove('open');
+    document.getElementById('loginMsg').classList.remove('visible');
+  }
+
+  function doLogin() {
+    var u = document.getElementById('loginUser').value.trim();
+    var p = document.getElementById('loginPass').value;
+    if (!u||!p) { showLoginMsg('Fill in both fields.'); return; }
+    google.script.run
+      .withSuccessHandler(function(res){
+        if (res.status==='success') {
+          adminToken = res.token;
+          closeModal();
+          document.getElementById('loginBtn').style.display    = 'none';
+          document.getElementById('logoutBtn').style.display   = 'inline-block';
+          document.getElementById('adminLabel').style.display  = 'inline';
+          document.getElementById('tab-admin').style.display   = 'inline-block';
+        } else {
+          showLoginMsg('Invalid username or password.');
+        }
+      })
+      .withFailureHandler(function(e){ showLoginMsg('Error: '+e); })
+      .adminLoginForWeb(u, p);
+  }
+
+  function showLoginMsg(msg) {
+    var el = document.getElementById('loginMsg');
+    el.textContent = msg; el.classList.add('visible');
+  }
+
+  function logout() {
+    adminToken = '';
+    document.getElementById('loginBtn').style.display    = 'inline-block';
+    document.getElementById('logoutBtn').style.display   = 'none';
+    document.getElementById('adminLabel').style.display  = 'none';
+    document.getElementById('tab-admin').style.display   = 'none';
+    showPage('logs');
+  }
+
+  // ADMIN
+  function adminFetch() {
+    var id = document.getElementById('adminCardInput').value.trim().toUpperCase();
+    if (!id) { showAdminMsg('Please enter a Card ID.', 'err'); return; }
+    loadAdminCard(id);
+  }
+
+  function loadAdminCard(cardId) {
+    google.script.run.withSuccessHandler(function(res){
+      // Hide any previous state
+      document.getElementById('adminForm').style.display      = 'none';
+      document.getElementById('notFoundPrompt').style.display = 'none';
+      document.getElementById('registerForm').style.display   = 'none';
+      document.getElementById('adminMsg').classList.remove('visible');
+
+      if (!res || res.status === 'not_found') {
+        // Card not in database — show the prompt
+        document.getElementById('regCardId').value              = cardId;
+        document.getElementById('regName').value                = '';
+        document.getElementById('regVehicle').value             = 'car';
+        document.getElementById('regBalance').value             = '0';
+        document.getElementById('registerMsg').classList.remove('visible');
+        document.getElementById('notFoundPrompt').style.display = 'block';
+        return;
+      }
+
+      var c = res.card;
+      adminCurrentCard = c.cardId;
+      document.getElementById('adminCardInput').value = c.cardId;
+      document.getElementById('aCardId').value        = c.cardId;
+      document.getElementById('aName').value          = c.name;
+      document.getElementById('aVehicle').value       = c.vehicleType.toLowerCase();
+      document.getElementById('aBalance').textContent = c.balance;
+      document.getElementById('adminForm').style.display = 'block';
+    }).getCardInfoForWeb(cardId);
+  }
+
+  function hideNotFound() {
+    document.getElementById('notFoundPrompt').style.display = 'none';
+  }
+
+  function showRegisterForm() {
+    document.getElementById('notFoundPrompt').style.display = 'none';
+    document.getElementById('registerForm').style.display   = 'block';
+    document.getElementById('regName').focus();
+  }
+
+  function hideRegisterForm() {
+    document.getElementById('registerForm').style.display   = 'none';
+    document.getElementById('notFoundPrompt').style.display = 'none';
+  }
+
+  function submitRegister() {
+    var cardId  = document.getElementById('regCardId').value.trim().toUpperCase();
+    var name    = document.getElementById('regName').value.trim();
+    var vehicle = document.getElementById('regVehicle').value;
+    var balance = parseFloat(document.getElementById('regBalance').value) || 0;
+
+    if (!name) { showRegisterMsg('Owner name is required.', 'err'); return; }
+    if (balance < 0) { showRegisterMsg('Balance cannot be negative.', 'err'); return; }
+
+    google.script.run
+      .withSuccessHandler(function(res){
+        if (res.status === 'success') {
+          document.getElementById('registerForm').style.display = 'none';
+          showAdminMsg('Card registered successfully!', 'ok');
+          loadAdminCards();
+          // Auto-load the newly registered card into the manage form
+          loadAdminCard(cardId);
+        } else if (res.status === 'duplicate') {
+          showRegisterMsg('This card is already registered.', 'err');
+        } else {
+          showRegisterMsg((res.message || 'Registration failed.'), 'err');
+        }
+      })
+      .withFailureHandler(function(e){ showRegisterMsg('Error: '+e, 'err'); })
+      .registerNewCardForWeb(cardId, name, vehicle, balance, adminToken);
+  }
+
+  function showRegisterMsg(msg, type) {
+    var el = document.getElementById('registerMsg');
+    el.textContent = msg;
+    el.className = 'msg msg-' + type + ' visible';
+  }
+
+  function saveCard() {
+    if (!adminCurrentCard) return;
+    var name    = document.getElementById('aName').value.trim();
+    var vehicle = document.getElementById('aVehicle').value;
+    if (!name) { showAdminMsg('Name cannot be empty.', 'err'); return; }
+    google.script.run
+      .withSuccessHandler(function(res){
+        if (res.status==='success') { showAdminMsg('Card updated successfully.', 'ok'); loadAdminCards(); }
+        else showAdminMsg('Update failed: '+(res.message||res.status), 'err');
+      })
+      .updateCardForWeb(adminCurrentCard, name, vehicle, adminToken);
+  }
+
+  function recharge() {
+    if (!adminCurrentCard) return;
+    var amt = parseFloat(document.getElementById('addAmt').value);
+    if (!amt||amt<=0||isNaN(amt)) { showAdminMsg('Enter a valid amount.', 'err'); return; }
+    google.script.run
+      .withSuccessHandler(function(res){
+        if (res.status==='success') {
+          document.getElementById('aBalance').textContent = res.newBalance;
+          document.getElementById('addAmt').value = '';
+          showAdminMsg('৳'+amt+' added. New balance: ৳'+res.newBalance, 'ok');
+          loadAdminCards();
+        } else showAdminMsg('Failed: '+(res.message||res.status), 'err');
+      })
+      .addBalanceForWeb(adminCurrentCard, amt, adminToken);
+  }
+
+  function showAdminMsg(msg, type) {
+    var el = document.getElementById('adminMsg');
+    el.textContent = msg; el.className = 'msg msg-'+type+' visible';
+  }
+
+  function startAdminListen() {
+    google.script.run.withSuccessHandler(function(res){
+      lastScanTime = res.timestamp||'';
+      adminListenTimer = setInterval(pollAdminListen, 2000);
+      document.getElementById('adminListenBtn').style.display     = 'none';
+      document.getElementById('adminStopListenBtn').style.display = 'inline-block';
+      document.getElementById('adminListenNote').classList.add('visible');
+    }).getLastScanForWeb();
+  }
+
+  function stopAdminListen() {
+    clearInterval(adminListenTimer); adminListenTimer = null;
+    document.getElementById('adminListenBtn').style.display     = 'inline-block';
+    document.getElementById('adminStopListenBtn').style.display = 'none';
+    document.getElementById('adminListenNote').classList.remove('visible');
+  }
+
+  function pollAdminListen() {
+    google.script.run.withSuccessHandler(function(res){
+      if (res&&res.cardId&&res.timestamp&&res.timestamp!==lastScanTime) {
+        lastScanTime = res.timestamp;
+        stopAdminListen();
+        document.getElementById('adminCardInput').value = res.cardId;
+        loadAdminCard(res.cardId);
+      }
+    }).getLastScanForWeb();
+  }
+
+  function loadAdminCards() {
+    google.script.run.withSuccessHandler(function(res){
+      var body = document.getElementById('adminCardsBody');
+      if (!res||!res.cards||!res.cards.length) {
+        body.innerHTML='<tr class="empty-row"><td colspan="5">No cards registered.</td></tr>'; return;
+      }
+      body.innerHTML = res.cards.map(function(c){
+        var vt = c.vehicleType.toLowerCase();
+        return '<tr>'+
+          '<td><b>'+c.cardId+'</b></td>'+
+          '<td>'+c.name+'</td>'+
+          '<td><span class="badge badge-'+vt+'">'+c.vehicleType+'</span></td>'+
+          '<td class="'+(c.balance<100?'red':'green')+'"><b>৳'+c.balance+'</b></td>'+
+          '<td style="white-space:nowrap">'+
+            '<button onclick="loadAdminCard(\''+c.cardId+'\')" class="btn-dark" '+
+              'style="padding:4px 10px;font-size:12px;margin-right:4px">Manage</button>'+
+            '<button onclick="openDeleteModal(\''+c.cardId+'\',\''+c.name+'\')" '+
+              'style="padding:4px 10px;font-size:12px;background:#c0392b;color:white;border:none;border-radius:4px;cursor:pointer">Delete</button>'+
+          '</td>'+
+        '</tr>';
+      }).join('');
+    }).getAllCardsForWeb();
+  }
+
+  // DELETE
+  var pendingDeleteId = '';
+
+  function openDeleteModal(cardId, name) {
+    pendingDeleteId = cardId;
+    document.getElementById('deleteCardLabel').textContent = cardId + ' — ' + name;
+    document.getElementById('deleteMsg').classList.remove('visible');
+    document.getElementById('deleteOverlay').classList.add('open');
+  }
+
+  function closeDeleteModal() {
+    pendingDeleteId = '';
+    document.getElementById('deleteOverlay').classList.remove('open');
+  }
+
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    google.script.run
+      .withSuccessHandler(function(res){
+        if (res.status === 'success') {
+          closeDeleteModal();
+          // If the deleted card is currently loaded in the manage form, clear it
+          if (adminCurrentCard === pendingDeleteId) {
+            adminCurrentCard = '';
+            document.getElementById('adminForm').style.display = 'none';
+            document.getElementById('adminCardInput').value    = '';
+          }
+          showAdminMsg('Card ' + res.cardId + ' deleted successfully.', 'ok');
+          loadAdminCards();
+        } else {
+          var el = document.getElementById('deleteMsg');
+          el.textContent = res.message || 'Delete failed.';
+          el.classList.add('visible');
+        }
+      })
+      .withFailureHandler(function(e){
+        var el = document.getElementById('deleteMsg');
+        el.textContent = 'Error: ' + e;
+        el.classList.add('visible');
+      })
+      .deleteCardForWeb(pendingDeleteId, adminToken);
+  }
+</script>
+
+</body>
+</html>
