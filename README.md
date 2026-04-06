@@ -76,7 +76,7 @@ The IoT-Based Smart Toll Collection System leverages RFID technology, cloud inte
 ---
 ### Practical Setup
 
-<img src="read_me_imgs/IoT_SystemArchitecture.png" alt="IoT System Architecture" width="600" height="400">
+<img src="setup.jpg" alt="IoT System Architecture" width="600" height="400">
 
 ---
 
